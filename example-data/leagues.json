@@ -1,0 +1,55 @@
+[
+    {
+        "id": 1,
+        "name": "Squads League 1",
+        "owners": [
+            21547,
+            63524
+        ],
+        "seasons": [
+            {
+                "id": 1,
+                "startDate": "",
+                "endDate": "",
+                "totalGames": 12,
+                "maxTeamSize": 5,
+                "teams": [
+                    {
+                        "id": 1,
+                        "name": "Team 1",
+                        "teamStats": [
+                            {
+                                "matchId": 0,
+                                "points": 0
+                            }
+                        ],
+                        "users": [
+                            {
+                                "id": 1,
+                                "rrAccountId": 985475,
+                                "discordAccountId": 15997564846515,
+                                "userStats": []
+                            }
+                        ]
+                    },
+                    {
+                        "id": 2,
+                        "name": "Team 2",
+                        "teamStats": [],
+                        "users": []
+                    }
+                ],
+                "matches": [
+                    {
+                        "id": 1,
+                        "date": "2021-06-26T20:00:00Z"
+                    },
+                    {
+                        "id": 2,
+                        "date": "2021-06-20T20:00:00Z"
+                    }
+                ]
+            }
+        ]
+    }
+]
