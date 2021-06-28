@@ -57,6 +57,7 @@ const typeDefs = gql`
   }
 
   # RR REST API TYPES
+  # =====================================
   # Accounts
   type AccountInfo {
     accountId: Int!
@@ -67,14 +68,18 @@ const typeDefs = gql`
     isJunior: Boolean
     platforms: Int
     createdAt: String
+    bio: AccountBio
   }
 
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
+  type AccountBio {
+    accountId: Int!
+    bio: String
+  }
+
   type Query {
     leagues: [League]
-    accountInfo(username: String!): AccountInfo
+    getRRAccountInfoFromUser(username: String): AccountInfo
+    getRRAccountInfoFromId(accountId: Int): AccountInfo
   }
 `;
 
@@ -85,13 +90,24 @@ const typeDefs = gql`
 const resolvers = {
     Query: {
         leagues: () => leagues,
-        accountInfo: async (_,{username = ''}) => {
-          console.log(`Username ${username}`);
-          const response = await fetch("https://accounts.rec.net/account?username=" + username);
+        getRRAccountInfoFromUser: async (_,{username = 'coach'}) => {
+          const response = await fetch(`https://accounts.rec.net/account?username=${username}`);
+          const data = await response.json();
+          return data;
+        },
+        getRRAccountInfoFromId: async (_,{accountId = 1}) => {
+          const response = await fetch(`https://accounts.rec.net/account/${accountId}`);
           const data = await response.json();
           return data;
         },
     },
+    AccountInfo: {
+      bio: async (parent) => {
+        const response = await fetch(`https://accounts.rec.net/account/${parent.accountId}/bio`);
+        const data = await response.json();
+        return data;
+      }
+    }
 };
 
 // The ApolloServer constructor requires two parameters: your schema
