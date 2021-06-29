@@ -59,7 +59,7 @@ const typeDefs = gql`
   # RR REST API TYPES
   # =====================================
   # Accounts
-  type AccountInfo {
+  type UserInfo {
     accountId: Int!
     username: String!
     displayName: String!
@@ -68,18 +68,75 @@ const typeDefs = gql`
     isJunior: Boolean
     platforms: Int
     createdAt: String
-    bio: AccountBio
+    bio: UserBio
+    rooms: [Room]
+    events: [Event]
   }
 
-  type AccountBio {
+  type UserBio {
     accountId: Int!
     bio: String
   }
 
+  type Event {
+    PlayerEventId: Int!
+    CreatorPlayerId: Int!
+    ImageName: String
+    RoomId: Int
+    SubRoomId: Int
+    ClubId: Int
+    Name: String
+    Description: String
+    StartTime: String
+    EndTime: String
+    AttendeeCount: Int
+    State: Int
+    Accessibility: Int
+  }
+
+  type Room {
+    RoomId: Int!
+    IsDorm: Boolean!
+    MaxPlayerCalculationMode: Int!
+    MaxPlayers: Int!
+    CloningAllowed: Boolean!
+    DisableMicAutoMute: Boolean!
+    DisableRoomComments: Boolean!
+    EncryptVoiceChat: Boolean!
+    LoadScreenLocked: Boolean!
+    Name: String!
+    Description: String
+    ImageName: String
+    WarningMask: Int
+    CustomWarning: String
+    CreatorAccountId: Int!
+    State: Int
+    Accessibility: Int
+    SupportsLevelVoting: Boolean
+    IsRRO: Boolean
+    SupportsScreens: Boolean
+    SupportsWalkVR: Boolean
+    SupportsTeleportVR: Boolean
+    SupportsVRLow: Boolean
+    SupportsQuest2: Boolean
+    SupportsMobile: Boolean
+    SupportsJuniors: Boolean
+    MinLevel: Int
+    CreatedAt: String
+    Stats: RoomStats
+  }
+
+  type RoomStats {
+    CheerCount: Int
+    FavoriteCount: Int
+    VisitorCount: Int
+    VisitCount: Int
+  }
+
   type Query {
     leagues: [League]
-    getRRAccountInfoFromUser(username: String): AccountInfo
-    getRRAccountInfoFromId(accountId: Int): AccountInfo
+    accountInfoFromUsername(username: String): UserInfo
+    accountInfoFromId(accountId: Int): UserInfo
   }
 `;
 
@@ -88,26 +145,36 @@ const typeDefs = gql`
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
-    Query: {
-        leagues: () => leagues,
-        getRRAccountInfoFromUser: async (_,{username = 'coach'}) => {
-          const response = await fetch(`https://accounts.rec.net/account?username=${username}`);
-          const data = await response.json();
-          return data;
-        },
-        getRRAccountInfoFromId: async (_,{accountId = 1}) => {
-          const response = await fetch(`https://accounts.rec.net/account/${accountId}`);
-          const data = await response.json();
-          return data;
-        },
+  Query: {
+    leagues: () => leagues,
+    accountInfoFromUsername: async (_, { username = 'Coach' }) => {
+      const response = await fetch(`https://accounts.rec.net/account?username=${username}`);
+      const data = await response.json();
+      return data;
     },
-    AccountInfo: {
-      bio: async (parent) => {
-        const response = await fetch(`https://accounts.rec.net/account/${parent.accountId}/bio`);
-        const data = await response.json();
-        return data;
-      }
-    }
+    accountInfoFromId: async (_, { accountId = 1 }) => {
+      const response = await fetch(`https://accounts.rec.net/account/${accountId}`);
+      const data = await response.json();
+      return data;
+    },
+  },
+  UserInfo: {
+    bio: async (parent) => {
+      const response = await fetch(`https://accounts.rec.net/account/${parent.accountId}/bio`);
+      const data = await response.json();
+      return data;
+    },
+    rooms: async (parent) => {
+      const response = await fetch(`https://rooms.rec.net/rooms/ownedby/${parent.accountId}`);
+      const data = await response.json();
+      return data;
+    },
+    events: async (parent) => {
+      const response = await fetch(`https://api.rec.net/api/playerevents/v1/creator/${parent.accountId}`);
+      const data = await response.json();
+      return data;
+    },
+  }
 };
 
 // The ApolloServer constructor requires two parameters: your schema
